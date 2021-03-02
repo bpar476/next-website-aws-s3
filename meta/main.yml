@@ -1,0 +1,23 @@
+galaxy_info:
+  author: Ben Partridge
+  description: A role to deploy a Next.js website to AWS S3 static website hosting
+
+  # TODO: Choose a license
+  # Choose a valid license ID from https://spdx.org - some suggested licenses:
+  # - BSD-3-Clause (default)
+  # - MIT
+  # - GPL-2.0-or-later
+  # - GPL-3.0-only
+  # - Apache-2.0
+  # - CC-BY-4.0
+  license: license (GPL-2.0-or-later, MIT, etc)
+
+  min_ansible_version: 2.10
+
+  platforms:
+  - name: Ubuntu
+    versions:
+    - 18.04
+
+  galaxy_tags: [AWS, Next.js, web]
+
