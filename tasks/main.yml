@@ -1,2 +1,71 @@
 ---
-# tasks file for next_website_aws_s3
+- name: Yarn Install
+  command:
+    cmd: yarn install
+    chdir: "{{ website_root_dir }}"
+
+- name: Yarn Build
+  command:
+    cmd: yarn build
+    chdir: "{{ website_root_dir }}"
+    creates: "{{ website_root_dir }}/.next"
+
+- name: Yarn export
+  command:
+    cmd: yarn export
+    chdir: "{{ website_root_dir }}"
+    creates: "{{ website_root_dir }}/out"
+
+- name: Gather html page files
+  find:
+    paths: "{{ website_root_dir }}/out"
+    patterns: "*.html"
+  register: html_pages
+
+- name: Drop the html suffix from the page files
+  command:
+    cmd: "mv {{ item }} {{ (item | splitext)[0] }}"
+    creates: "{{ (item | splitext)[0] }}"
+  with_fileglob:
+    - "{{ website_root_dir }}/out/*.html"
+
+- name: "Create {{ bucket_name }} S3 Bucket"
+  aws_s3:
+    mode: create
+    bucket: "{{ bucket_name }}"
+    permission: public-read
+    region: "{{ aws_region }}"
+
+- name: Create Route53 Record
+  community.aws.route53:
+    state: present
+    zone: "{{ r53_hosted_zone }}"
+    record: "{{ bucket_name }}"
+    value: "{{ s3_region_to_hosted_zone_map[aws_region].endpoint }}"
+    type: A
+    alias: True
+    alias_hosted_zone_id: "{{ s3_region_to_hosted_zone_map[aws_region].hosted_zone_id }}"
+    overwrite: True
+
+- name: Enable Static Web Hosting in BenPartridge.me Bucket
+  s3_website:
+    name: "{{ bucket_name }}"
+    state: present
+    error_key: "404"
+    suffix: index
+
+- name: Upload BenPartridge.me Exported Site to S3
+  s3_sync:
+    bucket: "{{ bucket_name }}"
+    file_root: "{{ website_root_dir }}/out"
+    permission: public-read
+
+- name: Correct the mime-type for page objects
+  aws_s3:
+    bucket: "{{ bucket_name }}"
+    object: "{{ (item.path.split('/') [-1] | splitext) [0] }}"
+    src: "{{ website_root_dir }}/out/{{ (item.path.split('/') [-1] | splitext) [0] }}"
+    mode: put
+    metadata: "Content-Type=text/html"
+    permission: public-read
+  with_items: "{{ html_pages.files }}"

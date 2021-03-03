@@ -1,2 +1,5 @@
 ---
-# vars file for next_website_aws_s3
+s3_region_to_hosted_zone_map:
+  ap-southeast-2:
+    hosted_zone_id: Z1WCIGYICN2BYD
+    endpoint: s3-website-ap-southeast-2.amazonaws.com
