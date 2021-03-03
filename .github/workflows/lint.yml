@@ -1,0 +1,22 @@
+name: Lint Ansible role
+
+on: [push]
+
+jobs:
+  lint_role:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.x"
+          architecture: "x64"
+      - name: Lint Ansible role
+        uses: ansible/ansible-lint-action@master
+        with:
+          targets: |
+            "tasks/main.yml"
+            "meta/main.yml"
+            "defaults/main.yml"
+            "vars/main.yml"
