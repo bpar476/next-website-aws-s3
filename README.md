@@ -12,6 +12,8 @@ boto3==1.10
 botocore==1.13
 ```
 
+You will also need to authenticate with AWS for this role so make sure `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables are available or the host has an appropriate IAM role.
+
 ## Role Variables
 
 ### Required Variables
@@ -65,12 +67,12 @@ Typically this playbook only needs to run on localhost as there are no remote ma
     website_root_dir: ../frontend
 
   roles:
-    - next-website
+    - next_website_aws_s3
 ```
 
 ## License
 
-TODO: open source?
+Apache License 2.0
 
 ## Author Information
 
